@@ -1,93 +1,31 @@
 <script setup>
-    import { ref, computed } from 'vue';
+    import { ref } from 'vue';
+    import Timer from './components/Timer.vue';
+    const mode = ref('focus');
 
-    const timers = {
-        focus: 5,
-        short_break: 200,
-    };
-
-    const active_timer = ref(timers.focus);
-    const status = computed(() => {
-        if (!timer_id.value) {
-            if (active_timer.value < timers.focus) return 'paused';
-            else return 'stopped';
-        } else {
-            if (active_timer.value === 0) return 'finished';
-            else return 'running';
-        }
-    });
-    const display = computed(() => {
-        const minutes = Math.trunc(active_timer.value / 60);
-        let seconds = active_timer.value % 60;
-
-        if (seconds < 10) seconds = '0' + seconds;
-
-        return { minutes, seconds };
-    });
-    const timer_id = ref(null);
-
-    function startTimer() {
-        const id = setInterval(() => {
-            active_timer.value--;
-            if (active_timer.value === 0) endTimer();
-        }, 1000);
-        timer_id.value = id;
-        status.value = 'running';
-    }
-
-    function stopTimer() {
-        if (timer_id.value) {
-            clearInterval(timer_id.value);
-            timer_id.value = null;
-        }
-
-        active_timer.value = timers.focus;
-    }
-
-    function pauseTimer() {
-        if (!timer_id.value) return;
-        clearInterval(timer_id.value);
-        timer_id.value = null;
-    }
-
-    function endTimer() {
-        clearInterval(timer_id.value);
-    }
-
-    function restartTimer() {
-        active_timer.value = timers.focus;
-        startTimer();
+    function changeMode(new_mode) {
+        mode.value = new_mode;
     }
 </script>
 
 <template>
     <main>
         <div>
-            <div class="mode-selector">
-                <button>Focus</button>
-                <button>Break</button>
+            <div :class="`mode-selector ${mode}`">
+                <button
+                    @click="() => changeMode('focus')"
+                    :class="mode === 'focus' && 'selected'"
+                >
+                    Focus
+                </button>
+                <button
+                    @click="() => changeMode('break')"
+                    :class="mode === 'break' && 'selected'"
+                >
+                    Break
+                </button>
             </div>
-            <p>{{ status }}</p>
-            <h1 class="timer">{{ display.minutes }}:{{ display.seconds }}</h1>
-            <div class="buttons">
-                <template v-if="status !== 'finished'">
-                    <button v-if="status === 'stopped'" @click="startTimer">
-                        Start
-                    </button>
-                    <button v-if="status === 'running'" @click="pauseTimer">
-                        Pause
-                    </button>
-                    <button v-if="status === 'paused'" @click="startTimer">
-                        Resume
-                    </button>
-                    <button v-if="status !== 'stopped'" @click="stopTimer">
-                        Stop
-                    </button>
-                </template>
-                <template v-else>
-                    <button @click="restartTimer">Restart</button>
-                </template>
-            </div>
+            <Timer :mode="mode" />
         </div>
     </main>
 </template>
@@ -113,21 +51,31 @@
 
     .mode-selector {
         display: flex;
+        position: relative;
+    }
+
+    .mode-selector::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 50%;
+        background-color: rgba(0, 0, 0, 0.07);
+        transition: transform 220ms ease-in-out;
+    }
+
+    .mode-selector.mode-selector.break::after {
+        transform: translateX(100%);
     }
 
     .mode-selector > button {
-        background: rgba(0, 0, 0, 0.081);
-    }
-
-    .timer {
-        font-size: 5rem;
-    }
-
-    .buttons > * {
         background-color: transparent;
-        padding: 1rem;
         border: none;
+        padding: 1rem 2rem;
         font-family: inherit;
-        font-size: 2rem;
+        font-weight: 4rem;
+        transition: border 220ms ease-in-out;
+        z-index: 100;
     }
 </style>
