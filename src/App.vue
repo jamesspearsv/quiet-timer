@@ -1,11 +1,32 @@
 <script setup>
-    import { ref } from 'vue';
+    import { onMounted, ref, useTemplateRef } from 'vue';
     import Timer from './components/Timer.vue';
     const mode = ref('focus');
+    const audioElement = useTemplateRef('audioElement');
+
+    let audioContext;
+    let track;
 
     function changeMode(new_mode) {
         mode.value = new_mode;
     }
+
+    function initAudio() {
+        console.log('initializing audio track');
+        audioContext = new AudioContext();
+        track = audioContext.createMediaElementSource(audioElement.value);
+        track.connect(audioContext.destination);
+    }
+
+    async function playAlert() {
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+
+        audioElement.value.play();
+    }
+
+    onMounted(initAudio);
 </script>
 
 <template>
@@ -25,9 +46,10 @@
                     Break
                 </button>
             </div>
-            <Timer :mode="mode" />
+            <Timer :mode="mode" @finished="playAlert()" />
         </div>
     </main>
+    <audio ref="audioElement" src="/attention-chime.mp3"></audio>
 </template>
 
 <style scoped>

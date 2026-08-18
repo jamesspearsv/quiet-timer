@@ -1,8 +1,10 @@
 <script setup>
     import { ref, computed, watch } from 'vue';
 
+    const emit = defineEmits(['finished']);
+
     const timers = {
-        focus: 1500,
+        focus: import.meta.env.PROD ? 1500 : 5,
         break: 300,
     };
 
@@ -62,6 +64,7 @@
 
     function endTimer() {
         clearInterval(timer_id.value);
+        emit('finished');
     }
 
     function restartTimer() {
@@ -83,11 +86,11 @@
             <button v-if="status === 'paused'" @click="startTimer">
                 Resume
             </button>
-            <button v-if="status !== 'stopped'" @click="stopTimer">Stop</button>
         </template>
         <template v-else>
             <button @click="restartTimer">Restart</button>
         </template>
+        <button v-if="status !== 'stopped'" @click="stopTimer">Stop</button>
     </div>
 </template>
 
