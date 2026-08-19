@@ -1,0 +1,26 @@
+:root {
+    --font-family: 'Averia Serif Libre', serif;
+    --clr-white: #fafafa;
+    --clr-black: #24252b;
+    --clr-shaded: rgba(0, 0, 0, 0.07);
+    --clr-transparent: transparent;
+    --border-radius: 8px;
+    --gap-spacing: 10px;
+}
+
+#app {
+    font-family: var(--font-family);
+    color: var(--clr-black);
+}
+
+button {
+    background-color: var(--clr-transparent);
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: var(--font-family);
+    transition: all 220ms ease-in-out;
+}
+
+button:hover {
+    background-color: var(--clr-shaded);
+}

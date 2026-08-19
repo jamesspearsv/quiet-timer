@@ -100,10 +100,7 @@
     }
 
     .buttons > * {
-        background-color: transparent;
         padding: 1rem;
-        border: none;
-        font-family: inherit;
         font-size: 2rem;
     }
 </style>

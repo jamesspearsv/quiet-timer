@@ -54,7 +54,7 @@
 
 <style scoped>
     main {
-        background-color: #fafafa;
+        background-color: var(--clr-white);
         position: absolute;
         top: 0;
         right: 0;
@@ -82,8 +82,10 @@
         top: 0;
         bottom: 0;
         left: 0;
-        right: 50%;
-        background-color: rgba(0, 0, 0, 0.07);
+        width: 50%;
+        background-color: var(--clr-shaded);
+        border: none;
+        border-radius: var(--border-radius);
         transition: transform 220ms ease-in-out;
     }
 
@@ -92,10 +94,7 @@
     }
 
     .mode-selector > button {
-        background-color: transparent;
-        border: none;
         padding: 1rem 2rem;
-        font-family: inherit;
         font-weight: 4rem;
         transition: border 220ms ease-in-out;
         z-index: 100;
