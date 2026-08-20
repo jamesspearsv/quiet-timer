@@ -1,6 +1,7 @@
 <script setup>
     import { onMounted, ref, useTemplateRef } from 'vue';
     import Timer from './components/Timer.vue';
+    import MuteButton from './components/MuteButton.vue';
     const mode = ref('focus');
     const audioElement = useTemplateRef('audioElement');
 
@@ -48,6 +49,7 @@
             </div>
             <Timer :mode="mode" @finished="playAlert()" />
         </div>
+        <MuteButton />
     </main>
     <audio ref="audioElement" src="/attention-chime.mp3"></audio>
 </template>
