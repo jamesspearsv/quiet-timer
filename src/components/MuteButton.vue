@@ -2,6 +2,8 @@
     import { ref } from 'vue';
 
     const muted = ref(false);
+
+    // todo: Define muted component event and respond to event in parent
 </script>
 
 <template>
