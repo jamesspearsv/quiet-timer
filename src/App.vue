@@ -74,6 +74,7 @@
     .mode-selector {
         display: flex;
         position: relative;
+        gap: 1rem;
     }
 
     .mode-selector::after {
@@ -82,14 +83,14 @@
         top: 0;
         bottom: 0;
         left: 0;
-        right: 50%;
+        right: calc(50% + 1rem / 2);
         border: solid var(--clr-black) 2px;
         border-radius: var(--border-radius);
         transition: transform 220ms ease-in-out;
     }
 
     .mode-selector.mode-selector.break::after {
-        transform: translateX(100%);
+        transform: translateX(calc(100% + 1rem));
     }
 
     .mode-selector > button {
