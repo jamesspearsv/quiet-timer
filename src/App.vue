@@ -82,9 +82,8 @@
         top: 0;
         bottom: 0;
         left: 0;
-        width: 50%;
-        background-color: var(--clr-shaded);
-        border: none;
+        right: 50%;
+        border: solid var(--clr-black) 2px;
         border-radius: var(--border-radius);
         transition: transform 220ms ease-in-out;
     }

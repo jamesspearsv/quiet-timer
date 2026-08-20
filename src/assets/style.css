@@ -23,4 +23,5 @@ button {
 
 button:hover {
     background-color: var(--clr-shaded);
+    cursor: pointer;
 }
