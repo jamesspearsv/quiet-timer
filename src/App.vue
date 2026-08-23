@@ -2,7 +2,9 @@
     import { onMounted, ref, useTemplateRef } from 'vue';
     import Timer from './components/Timer.vue';
     import MuteButton from './components/MuteButton.vue';
+
     const mode = ref('focus');
+    const muted = ref(false);
     const audioElement = useTemplateRef('audioElement');
 
     let audioContext;
@@ -10,6 +12,10 @@
 
     function changeMode(new_mode) {
         mode.value = new_mode;
+    }
+
+    function toggleMute() {
+        muted.value = !muted.value;
     }
 
     function initAudio() {
@@ -20,6 +26,8 @@
     }
 
     async function playAlert() {
+        if (muted.value) return;
+
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         }
@@ -49,9 +57,9 @@
             </div>
             <Timer :mode="mode" @finished="playAlert()" />
         </div>
-        <MuteButton />
+        <MuteButton :muted="muted" @toggle-mute="toggleMute()" />
     </main>
-    <audio ref="audioElement" src="/attention-chime.mp3"></audio>
+    <audio ref="audioElement" src="/mission-complete-chime.mp3"></audio>
 </template>
 
 <style scoped>

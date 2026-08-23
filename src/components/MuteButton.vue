@@ -1,13 +1,11 @@
 <script setup>
-    import { ref } from 'vue';
+    const props = defineProps({ muted: { type: Boolean, required: true } });
 
-    const muted = ref(false);
-
-    // todo: Define muted component event and respond to event in parent
+    const emits = defineEmits(['toggleMute']);
 </script>
 
 <template>
-    <button @click="() => (muted = !muted)">
+    <button @click="() => emits('toggleMute')">
         <i v-if="muted" class="bi bi-volume-mute-fill"></i>
         <i v-if="!muted" class="bi bi-volume-down-fill"></i>
     </button>
