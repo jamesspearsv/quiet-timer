@@ -4,8 +4,8 @@
     const emit = defineEmits(['finished']);
 
     const timers = {
-        focus: import.meta.env.PROD ? 1500 : 5,
-        break: 300,
+        focus: import.meta.env.PROD ? 1500 : 10,
+        break: import.meta.env.PROD ? 300 : 3,
     };
 
     const { mode } = defineProps(['mode']);
@@ -88,11 +88,11 @@
 </script>
 
 <template>
-    <div class="timer">
+    <div :class="`timer ${status}`">
         <span>
             {{ display.minutes }}
         </span>
-        <span>:</span>
+        <span class="seperator">:</span>
         <span>
             {{ display.seconds }}
         </span>
@@ -117,6 +117,16 @@
 </template>
 
 <style scoped>
+    @keyframes flashing {
+        to {
+            color: var(--clr-transparent);
+        }
+
+        from {
+            color: var(--clr-gray);
+        }
+    }
+
     .timer {
         font-size: 5rem;
         font-weight: bold;
@@ -124,6 +134,12 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        transition: all linear 220ms;
+    }
+
+    .timer.paused {
+        transform: scale(0.7);
+        color: var(--clr-gray);
     }
 
     .buttons > * {
