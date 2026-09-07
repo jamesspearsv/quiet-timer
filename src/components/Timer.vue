@@ -4,8 +4,8 @@
     const emit = defineEmits(['finished']);
 
     const timers = {
-        focus: import.meta.env.PROD ? 1500 : 10,
-        break: import.meta.env.PROD ? 300 : 3,
+        focus: import.meta.env.PROD ? 1500 : 60,
+        break: import.meta.env.PROD ? 300 : 5,
     };
 
     const { mode } = defineProps(['mode']);
@@ -26,12 +26,14 @@
 
     /** Compute display values for timer in minutes and seconds */
     const display = computed(() => {
+        const percent_complete =
+            ((timers[mode] - active_timer.value) / timers[mode]) * 100;
         const minutes = Math.trunc(active_timer.value / 60);
         let seconds = active_timer.value % 60;
 
         if (seconds < 10) seconds = '0' + seconds;
 
-        return { minutes, seconds };
+        return { minutes, seconds, percent_complete };
     });
     const timer_id = ref(null);
 
@@ -97,6 +99,13 @@
             {{ display.seconds }}
         </span>
     </div>
+    <div class="timer-percent">
+        <div
+            class="timer-completed"
+            :class="`${status}`"
+            :style="{ width: display.percent_complete + '%' }"
+        ></div>
+    </div>
     <div class="buttons">
         <template v-if="status !== 'finished'">
             <button v-if="status === 'stopped'" @click="startTimer">
@@ -117,13 +126,13 @@
 </template>
 
 <style scoped>
-    @keyframes flashing {
+    @keyframes paused-animation {
         to {
-            color: var(--clr-transparent);
+            transform: scale(1.04);
         }
 
         from {
-            color: var(--clr-gray);
+            transform: scale(1);
         }
     }
 
@@ -138,12 +147,38 @@
     }
 
     .timer.paused {
-        transform: scale(0.7);
         color: var(--clr-gray);
+        animation: paused-animation 1000ms linear infinite alternate;
     }
 
     .buttons > * {
         padding: 1rem;
         font-size: 2rem;
+    }
+
+    /* 
+    TODO: Update and improve timer status styles
+    * These styles would be better defined using
+    * reactive style objects in the component script 
+    */
+
+    .timer-percent {
+        align-self: flex-start;
+        border-radius: 3px;
+        width: 100%;
+        height: 5px;
+        margin-block: 1rem;
+        background-color: var(--clr-shaded);
+    }
+
+    .timer-completed {
+        transition: all 250ms linear;
+        background-color: #70ae6e;
+        border-radius: inherit;
+        height: inherit;
+    }
+
+    .timer-completed.paused {
+        background-color: #fec601;
     }
 </style>

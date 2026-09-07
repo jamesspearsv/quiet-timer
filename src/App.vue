@@ -41,7 +41,7 @@
 <template>
     <main>
         <div>
-            <div :class="`mode-selector ${mode}`">
+            <div class="mode-selector" :class="`${mode}`">
                 <button
                     @click="() => changeMode('focus')"
                     :class="mode === 'focus' && 'selected'"
