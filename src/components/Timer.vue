@@ -26,8 +26,7 @@
 
     /** Compute display values for timer in minutes and seconds */
     const display = computed(() => {
-        const percent_complete =
-            ((timers[mode] - active_timer.value) / timers[mode]) * 100;
+        const percent_complete = (active_timer.value / timers[mode]) * 100;
         const minutes = Math.trunc(active_timer.value / 60);
         let seconds = active_timer.value % 60;
 
