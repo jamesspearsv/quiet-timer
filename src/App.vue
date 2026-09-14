@@ -1,7 +1,8 @@
 <script setup>
     import { onMounted, ref, useTemplateRef } from 'vue';
-    import Timer from './components/Timer.vue';
     import MuteButton from './components/MuteButton.vue';
+    import TimerDisplay from './components/TimerDisplay.vue';
+    import ModeButtons from './components/ModeButtons.vue';
 
     const mode = ref('focus');
     const muted = ref(false);
@@ -41,21 +42,8 @@
 <template>
     <main>
         <div>
-            <div class="mode-selector" :class="`${mode}`">
-                <button
-                    @click="() => changeMode('focus')"
-                    :class="mode === 'focus' && 'selected'"
-                >
-                    Focus
-                </button>
-                <button
-                    @click="() => changeMode('break')"
-                    :class="mode === 'break' && 'selected'"
-                >
-                    Break
-                </button>
-            </div>
-            <Timer :mode="mode" @finished="playAlert()" />
+            <ModeButtons :mode="mode" @change-mode="(m) => changeMode(m)" />
+            <TimerDisplay :mode="mode" @finished="playAlert()" />
         </div>
         <MuteButton :muted="muted" @toggle-mute="toggleMute()" />
     </main>
@@ -79,34 +67,5 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-    }
-
-    .mode-selector {
-        display: flex;
-        position: relative;
-        gap: 1rem;
-    }
-
-    .mode-selector::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: calc(50% + 1rem / 2);
-        border: solid var(--clr-black) 2px;
-        border-radius: var(--border-radius);
-        transition: transform 220ms ease-in-out;
-    }
-
-    .mode-selector.mode-selector.break::after {
-        transform: translateX(calc(100% + 1rem));
-    }
-
-    .mode-selector > button {
-        padding: 1rem 2rem;
-        font-weight: 4rem;
-        transition: border 220ms ease-in-out;
-        z-index: 100;
     }
 </style>
