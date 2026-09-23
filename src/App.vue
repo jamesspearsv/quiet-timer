@@ -3,6 +3,7 @@
     import MuteButton from './components/MuteButton.vue';
     import TimerDisplay from './components/TimerDisplay.vue';
     import ModeButtons from './components/ModeButtons.vue';
+    import SegmentDialog from './components/SegmentDialog.vue';
 
     const mode = ref('focus');
     const muted = ref(false);
@@ -48,6 +49,7 @@
         <MuteButton :muted="muted" @toggle-mute="toggleMute()" />
     </main>
     <audio ref="audioElement" src="/mission-complete-chime.mp3"></audio>
+    <SegmentDialog :open="true" />
 </template>
 
 <style scoped>
