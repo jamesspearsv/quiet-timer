@@ -8,15 +8,15 @@
         break: import.meta.env.PROD ? 300 : 5,
     };
 
-    const { mode } = defineProps(['mode']);
+    const props = defineProps(['phase']);
 
     /** Active timer duration in seconds */
-    const active_timer = ref(timers[mode]);
+    const active_timer = ref(timers[props.phase]);
 
     /** Computed ref to track timer activity status */
     const status = computed(() => {
         if (!timer_id.value) {
-            if (active_timer.value < timers[mode]) return 'paused';
+            if (active_timer.value < timers[props.phase]) return 'paused';
             else return 'stopped';
         } else {
             if (active_timer.value === 0) return 'finished';
@@ -26,7 +26,8 @@
 
     /** Compute display values for timer in minutes and seconds */
     const display = computed(() => {
-        const percent_complete = (active_timer.value / timers[mode]) * 100;
+        const percent_complete =
+            (active_timer.value / timers[props.phase]) * 100;
         const minutes = Math.trunc(active_timer.value / 60);
         let seconds = active_timer.value % 60;
 
@@ -38,10 +39,10 @@
 
     // Watcher to change timer duration when the timer's mode changes
     watch(
-        () => mode,
+        () => props.phase,
         () => {
             stopTimer();
-            active_timer.value = timers[mode];
+            active_timer.value = timers[props.phase];
         },
     );
 
@@ -49,7 +50,7 @@
     watch(
         display,
         () => {
-            document.title = `${mode} | ${display.value.minutes}:${display.value.seconds}`;
+            document.title = `${props.phase} | ${display.value.minutes}:${display.value.seconds}`;
         },
         { immediate: true },
     );
@@ -68,7 +69,7 @@
             timer_id.value = null;
         }
 
-        active_timer.value = timers[mode];
+        active_timer.value = timers[props.phase];
     }
 
     function pauseTimer() {
@@ -83,7 +84,7 @@
     }
 
     function restartTimer() {
-        active_timer.value = timers[mode];
+        active_timer.value = timers[props.phase];
         startTimer();
     }
 </script>

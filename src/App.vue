@@ -2,18 +2,20 @@
     import { onMounted, ref, useTemplateRef } from 'vue';
     import MuteButton from './components/MuteButton.vue';
     import TimerDisplay from './components/TimerDisplay.vue';
-    import ModeButtons from './components/ModeButtons.vue';
+    import PhaseButtons from './components/PhaseButtons.vue';
     import SegmentDialog from './components/SegmentDialog.vue';
+    import { goToNextPhase } from './lib/segmentController.js';
 
-    const mode = ref('focus');
+    const phase = ref('focus');
+    const segmentModalOpen = ref(true);
     const muted = ref(false);
     const audioElement = useTemplateRef('audioElement');
 
     let audioContext;
     let track;
 
-    function changeMode(new_mode) {
-        mode.value = new_mode;
+    function changePhase(new_phase) {
+        phase.value = new_phase;
     }
 
     function toggleMute() {
@@ -34,6 +36,7 @@
             audioContext.resume();
         }
 
+        segmentModalOpen.value = true;
         audioElement.value.play();
     }
 
@@ -43,13 +46,18 @@
 <template>
     <main>
         <div>
-            <ModeButtons :mode="mode" @change-mode="(m) => changeMode(m)" />
-            <TimerDisplay :mode="mode" @finished="playAlert()" />
+            <PhaseButtons :phase="phase" @change-mode="(m) => changePhase(m)" />
+            <TimerDisplay :phase="phase" @finished="playAlert()" />
         </div>
         <MuteButton :muted="muted" @toggle-mute="toggleMute()" />
     </main>
     <audio ref="audioElement" src="/mission-complete-chime.mp3"></audio>
-    <SegmentDialog :open="true" />
+    <SegmentDialog
+        :open="segmentModalOpen"
+        :segment="phase"
+        @stop="() => (segmentModalOpen = false)"
+        @next="() => (phase = goToNextPhase(phase))"
+    />
 </template>
 
 <style scoped>

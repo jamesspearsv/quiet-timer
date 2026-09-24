@@ -1,25 +1,25 @@
 <script setup>
-    const emit = defineEmits(['change-mode']);
-    const { mode } = defineProps({
-        mode: { type: String, required: true },
+    const emit = defineEmits(['change-phase']);
+    const props = defineProps({
+        phase: { type: String, required: true },
     });
 
-    function handleClick(newMode) {
-        emit('change-mode', newMode);
+    function handleClick(phase) {
+        emit('change-phase', phase);
     }
 </script>
 
 <template>
-    <div class="mode-selector" :class="`${mode}`">
+    <div class="phase-selector" :class="`${props.phase}`">
         <button
             @click="() => handleClick('focus')"
-            :class="mode === 'focus' && 'selected'"
+            :class="props.phase === 'focus' && 'selected'"
         >
             Focus
         </button>
         <button
             @click="() => handleClick('break')"
-            :class="mode === 'break' && 'selected'"
+            :class="props.phase === 'break' && 'selected'"
         >
             Break
         </button>
@@ -27,13 +27,13 @@
 </template>
 
 <style scoped>
-    .mode-selector {
+    .phase-selector {
         display: flex;
         position: relative;
         gap: 1rem;
     }
 
-    .mode-selector::after {
+    .phase-selector::after {
         content: '';
         position: absolute;
         top: 0;
@@ -45,11 +45,11 @@
         transition: transform 220ms ease-in-out;
     }
 
-    .mode-selector.mode-selector.break::after {
+    .phase-selector.phase-selector.break::after {
         transform: translateX(calc(100% + 1rem));
     }
 
-    .mode-selector > button {
+    .phase-selector > button {
         padding: 1rem 2rem;
         font-weight: 4rem;
         transition: border 220ms ease-in-out;

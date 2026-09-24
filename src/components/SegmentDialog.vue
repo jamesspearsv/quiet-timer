@@ -1,29 +1,46 @@
 <script setup>
-    import { useTemplateRef, watch } from 'vue';
+    import { onMounted, useTemplateRef, watch } from 'vue';
 
+    const dialog = useTemplateRef('dialog');
+    defineEmits(['next', 'stop']);
     const props = defineProps({
         open: {
             type: Boolean,
             required: true,
         },
+        segment: {
+            type: String,
+            required: true,
+        },
     });
 
-    const dialog = useTemplateRef('dialog');
+    const modalMessage = {
+        focus: 'Nice work! Time for a break!',
+        break: 'Ready? Time to focus!',
+    };
 
-    watch(
-        () => props.open,
-        () => {
-            if (props.open) {
-                dialog.value.showModal();
-            } else {
-                dialog.value.close();
-            }
-        },
-    );
+    function toggleModal() {
+        if (!dialog.value) return;
+
+        if (props.open) {
+            dialog.value.showModal();
+        } else {
+            dialog.value.close();
+        }
+    }
+
+    onMounted(toggleModal);
+    watch(() => props.open, toggleModal);
 </script>
 
 <template>
-    <dialog ref="dialog"></dialog>
+    <dialog ref="dialog">
+        <div>
+            <h2>{{ modalMessage[props.segment] }}</h2>
+            <button @click="() => $emit('stop')">End Session</button>
+            <button @click="() => $emit('next')">Next</button>
+        </div>
+    </dialog>
 </template>
 
 <style scoped>
@@ -34,6 +51,9 @@
         bottom: 0;
         right: 0;
 
-        background-color: black;
+        border: none;
+        border-radius: var(--border-radius);
+
+        background-color: var(--clr-white);
     }
 </style>
