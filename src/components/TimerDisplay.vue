@@ -4,7 +4,7 @@
     const emit = defineEmits(['finished']);
 
     const timers = {
-        focus: import.meta.env.PROD ? 1500 : 60,
+        focus: import.meta.env.PROD ? 1500 : 3,
         break: import.meta.env.PROD ? 300 : 5,
     };
 

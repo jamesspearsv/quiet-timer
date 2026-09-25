@@ -4,18 +4,28 @@
     import TimerDisplay from './components/TimerDisplay.vue';
     import PhaseButtons from './components/PhaseButtons.vue';
     import SegmentDialog from './components/SegmentDialog.vue';
-    import { goToNextPhase } from './lib/segmentController.js';
 
     const phase = ref('focus');
-    const segmentModalOpen = ref(true);
+    const phaseModalOpen = ref(false);
     const muted = ref(false);
     const audioElement = useTemplateRef('audioElement');
 
     let audioContext;
     let track;
 
-    function changePhase(new_phase) {
-        phase.value = new_phase;
+    function changePhase() {
+        audioElement.value.pause();
+
+        let next_phase;
+        if (phase.value === 'focus') next_phase = 'break';
+        if (phase.value === 'break') next_phase = 'focus';
+        phase.value = next_phase;
+        phaseModalOpen.value = false;
+    }
+
+    function endSession() {
+        audioElement.value.pause();
+        phaseModalOpen.value = false;
     }
 
     function toggleMute() {
@@ -30,14 +40,16 @@
     }
 
     async function playAlert() {
-        if (muted.value) return;
+        phaseModalOpen.value = true;
 
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
+        if (!muted.value) {
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
+            audioElement.value.currentTime = 0;
+            audioElement.value.play();
         }
-
-        segmentModalOpen.value = true;
-        audioElement.value.play();
     }
 
     onMounted(initAudio);
@@ -46,17 +58,20 @@
 <template>
     <main>
         <div>
-            <PhaseButtons :phase="phase" @change-mode="(m) => changePhase(m)" />
-            <TimerDisplay :phase="phase" @finished="playAlert()" />
+            <PhaseButtons
+                :phase="phase"
+                @change-phase="(m) => changePhase(m)"
+            />
+            <TimerDisplay :phase="phase" @finished="playAlert" />
         </div>
-        <MuteButton :muted="muted" @toggle-mute="toggleMute()" />
+        <MuteButton :muted="muted" @toggle-mute="toggleMute" />
     </main>
-    <audio ref="audioElement" src="/mission-complete-chime.mp3"></audio>
+    <audio ref="audioElement" src="/retro-alarm-clock.mp3"></audio>
     <SegmentDialog
-        :open="segmentModalOpen"
+        :open="phaseModalOpen"
         :segment="phase"
-        @stop="() => (segmentModalOpen = false)"
-        @next="() => (phase = goToNextPhase(phase))"
+        @stop="endSession"
+        @next="changePhase"
     />
 </template>
 

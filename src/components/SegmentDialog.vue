@@ -35,8 +35,8 @@
 
 <template>
     <dialog ref="dialog">
-        <div>
-            <h2>{{ modalMessage[props.segment] }}</h2>
+        <h2>{{ modalMessage[props.segment] }}</h2>
+        <div class="button-container">
             <button @click="() => $emit('stop')">End Session</button>
             <button @click="() => $emit('next')">Next</button>
         </div>
@@ -51,9 +51,29 @@
         bottom: 0;
         right: 0;
 
+        padding: 2rem;
+        text-align: center;
+
         border: none;
         border-radius: var(--border-radius);
 
         background-color: var(--clr-white);
+    }
+
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(5px);
+    }
+
+    h2 {
+        margin-bottom: 2rem;
+    }
+
+    button {
+        padding: 1rem;
+    }
+
+    .button-container {
+        margin-top: auto;
     }
 </style>
