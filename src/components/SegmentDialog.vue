@@ -1,18 +1,13 @@
-<script setup>
+<script setup lang="ts">
+    import type { Phase } from '@/lib/types';
     import { onMounted, useTemplateRef, watch } from 'vue';
 
     const dialog = useTemplateRef('dialog');
     defineEmits(['next', 'stop']);
-    const props = defineProps({
-        open: {
-            type: Boolean,
-            required: true,
-        },
-        segment: {
-            type: String,
-            required: true,
-        },
-    });
+    const props = defineProps<{
+        open: Boolean;
+        phase: Phase;
+    }>();
 
     const modalMessage = {
         focus: 'Nice work! Time for a break!',
@@ -35,7 +30,7 @@
 
 <template>
     <dialog ref="dialog">
-        <h2>{{ modalMessage[props.segment] }}</h2>
+        <h2>{{ modalMessage[props.phase] }}</h2>
         <div class="button-container">
             <button @click="() => $emit('stop')">End Session</button>
             <button @click="() => $emit('next')">Next</button>

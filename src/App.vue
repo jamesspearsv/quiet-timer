@@ -1,31 +1,39 @@
-<script setup>
+<script setup lang="ts">
     import { onMounted, ref, useTemplateRef } from 'vue';
-    import MuteButton from './components/MuteButton.vue';
-    import TimerDisplay from './components/TimerDisplay.vue';
-    import PhaseButtons from './components/PhaseButtons.vue';
-    import SegmentDialog from './components/SegmentDialog.vue';
+    import MuteButton from '@/components/MuteButton.vue';
+    import TimerDisplay from '@/components/TimerDisplay.vue';
+    import PhaseButtons from '@/components/PhaseButtons.vue';
+    import SegmentDialog from '@/components/SegmentDialog.vue';
+    import type { Phase, TimerStatus } from '@/lib/types.ts';
+    import { TIMERS } from './lib/const';
 
-    const phase = ref('focus');
-    const phaseModalOpen = ref(false);
+    const current_phase = ref<Phase>('focus');
+    const current_timer = ref(TIMERS.focus);
+    const timer_status = ref<TimerStatus>('stopped');
+    const modal_open = ref(false);
     const muted = ref(false);
-    const audioElement = useTemplateRef('audioElement');
+    const audio_element = useTemplateRef('audioElement');
 
-    let audioContext;
-    let track;
+    let audioContext: AudioContext;
+    let track: MediaElementAudioSourceNode;
 
-    function changePhase() {
-        audioElement.value.pause();
+    function changePhase(newPhase?: Phase) {
+        if (!audio_element.value) return;
+        audio_element.value.pause();
 
-        let next_phase;
-        if (phase.value === 'focus') next_phase = 'break';
-        if (phase.value === 'break') next_phase = 'focus';
-        phase.value = next_phase;
-        phaseModalOpen.value = false;
+        let next_phase: Phase = 'focus';
+
+        if (current_phase.value === 'focus') next_phase = 'break';
+        if (current_phase.value === 'break') next_phase = 'focus';
+        current_phase.value = next_phase;
+        modal_open.value = false;
     }
 
     function endSession() {
-        audioElement.value.pause();
-        phaseModalOpen.value = false;
+        if (!audio_element.value) return;
+
+        audio_element.value.pause();
+        modal_open.value = false;
     }
 
     function toggleMute() {
@@ -33,22 +41,26 @@
     }
 
     function initAudio() {
+        if (!audio_element.value) return;
+
         console.log('initializing audio track');
         audioContext = new AudioContext();
-        track = audioContext.createMediaElementSource(audioElement.value);
+        track = audioContext.createMediaElementSource(audio_element.value);
         track.connect(audioContext.destination);
     }
 
     async function playAlert() {
-        phaseModalOpen.value = true;
+        modal_open.value = true;
+
+        if (!audio_element.value) return;
 
         if (!muted.value) {
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
 
-            audioElement.value.currentTime = 0;
-            audioElement.value.play();
+            audio_element.value.currentTime = 0;
+            audio_element.value.play();
         }
     }
 
@@ -59,17 +71,23 @@
     <main>
         <div>
             <PhaseButtons
-                :phase="phase"
-                @change-phase="(m) => changePhase(m)"
+                :phase="current_phase"
+                @change-phase="(m: Phase) => changePhase(m)"
             />
-            <TimerDisplay :phase="phase" @finished="playAlert" />
+            <TimerDisplay
+                :current-timer="current_timer"
+                :phase="current_phase"
+                :status="timer_status"
+                :timer-remaining="(current_timer / TIMERS[current_phase]) * 100"
+                @finished="playAlert"
+            />
         </div>
         <MuteButton :muted="muted" @toggle-mute="toggleMute" />
     </main>
     <audio ref="audioElement" src="/retro-alarm-clock.mp3"></audio>
     <SegmentDialog
-        :open="phaseModalOpen"
-        :segment="phase"
+        :open="modal_open"
+        :phase="current_phase"
         @stop="endSession"
         @next="changePhase"
     />

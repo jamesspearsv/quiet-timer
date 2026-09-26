@@ -1,7 +1,9 @@
-<script setup>
-    const props = defineProps({ muted: { type: Boolean, required: true } });
+<script setup lang="ts">
+    const props = defineProps<{
+        muted: Boolean;
+    }>();
 
-    const emits = defineEmits(['toggleMute']);
+    const emits = defineEmits<{ toggleMute: [] }>();
 </script>
 
 <template>

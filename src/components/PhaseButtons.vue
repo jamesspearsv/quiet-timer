@@ -1,11 +1,13 @@
-<script setup>
-    const emit = defineEmits(['change-phase']);
-    const props = defineProps({
-        phase: { type: String, required: true },
-    });
+<script setup lang="ts">
+    import type { Phase } from '@/lib/types';
 
-    function handleClick(phase) {
-        emit('change-phase', phase);
+    const emit = defineEmits<{
+        changePhase: [phase: Phase];
+    }>();
+    const props = defineProps<{ phase: Phase }>();
+
+    function handleClick(phase: Phase) {
+        emit('changePhase', phase);
     }
 </script>
 

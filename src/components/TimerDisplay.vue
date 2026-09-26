@@ -1,50 +1,27 @@
-<script setup>
+<script setup lang="ts">
+    import type { Phase, TimerStatus } from '@/lib/types';
     import { ref, computed, watch } from 'vue';
 
-    const emit = defineEmits(['finished']);
+    const props = defineProps<{
+        currentTimer: number;
+        timerRemaining: number;
+        status: TimerStatus;
+        phase: Phase;
+    }>();
 
-    const timers = {
-        focus: import.meta.env.PROD ? 1500 : 3,
-        break: import.meta.env.PROD ? 300 : 5,
-    };
-
-    const props = defineProps(['phase']);
-
-    /** Active timer duration in seconds */
-    const active_timer = ref(timers[props.phase]);
-
-    /** Computed ref to track timer activity status */
-    const status = computed(() => {
-        if (!timer_id.value) {
-            if (active_timer.value < timers[props.phase]) return 'paused';
-            else return 'stopped';
-        } else {
-            if (active_timer.value === 0) return 'finished';
-            else return 'running';
-        }
-    });
+    const emit = defineEmits(['start', 'pause', 'finish', 'restart']);
 
     /** Compute display values for timer in minutes and seconds */
     const display = computed(() => {
-        const percent_complete =
-            (active_timer.value / timers[props.phase]) * 100;
-        const minutes = Math.trunc(active_timer.value / 60);
-        let seconds = active_timer.value % 60;
+        const minutes = Math.trunc(props.currentTimer / 60).toString();
+        let seconds = (props.currentTimer % 60).toString();
 
-        if (seconds < 10) seconds = '0' + seconds;
+        if (Number(seconds) < 10) {
+            seconds = '0' + seconds;
+        }
 
-        return { minutes, seconds, percent_complete };
+        return { minutes, seconds };
     });
-    const timer_id = ref(null);
-
-    // Watcher to change timer duration when the timer's mode changes
-    watch(
-        () => props.phase,
-        () => {
-            stopTimer();
-            active_timer.value = timers[props.phase];
-        },
-    );
 
     // Watch display ref and update page title accordingly
     watch(
@@ -54,39 +31,6 @@
         },
         { immediate: true },
     );
-
-    function startTimer() {
-        const id = setInterval(() => {
-            active_timer.value--;
-            if (active_timer.value === 0) endTimer();
-        }, 1000);
-        timer_id.value = id;
-    }
-
-    function stopTimer() {
-        if (timer_id.value) {
-            clearInterval(timer_id.value);
-            timer_id.value = null;
-        }
-
-        active_timer.value = timers[props.phase];
-    }
-
-    function pauseTimer() {
-        if (!timer_id.value) return;
-        clearInterval(timer_id.value);
-        timer_id.value = null;
-    }
-
-    function endTimer() {
-        clearInterval(timer_id.value);
-        emit('finished');
-    }
-
-    function restartTimer() {
-        active_timer.value = timers[props.phase];
-        startTimer();
-    }
 </script>
 
 <template>
@@ -103,25 +47,23 @@
         <div
             class="timer-completed"
             :class="`${status}`"
-            :style="{ width: display.percent_complete + '%' }"
+            :style="{ width: props.timerRemaining + '%' }"
         ></div>
     </div>
     <div class="buttons">
         <template v-if="status !== 'finished'">
-            <button v-if="status === 'stopped'" @click="startTimer">
-                Start
-            </button>
-            <button v-if="status === 'running'" @click="pauseTimer">
+            <button v-if="status === 'stopped'" @click="">Start</button>
+            <button v-if="status === 'running'" @click="() => null">
                 Pause
             </button>
-            <button v-if="status === 'paused'" @click="startTimer">
+            <button v-if="status === 'paused'" @click="() => null">
                 Resume
             </button>
         </template>
         <template v-else>
-            <button @click="restartTimer">Restart</button>
+            <button @click="() => null">Restart</button>
         </template>
-        <button v-if="status !== 'stopped'" @click="stopTimer">Stop</button>
+        <button v-if="status !== 'stopped'" @click="() => null">Stop</button>
     </div>
 </template>
 
