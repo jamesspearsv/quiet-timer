@@ -2,14 +2,13 @@
     import type { Phase, TimerStatus } from '@/lib/types';
     import { ref, computed, watch } from 'vue';
 
+    const emit = defineEmits(['start', 'pause', 'finish', 'stop']);
     const props = defineProps<{
         currentTimer: number;
         timerRemaining: number;
         status: TimerStatus;
         phase: Phase;
     }>();
-
-    const emit = defineEmits(['start', 'pause', 'finish', 'restart']);
 
     /** Compute display values for timer in minutes and seconds */
     const display = computed(() => {
@@ -22,6 +21,16 @@
 
         return { minutes, seconds };
     });
+
+    watch(
+        () => props.currentTimer,
+        () => {
+            if (props.currentTimer === 0) {
+                emit('stop');
+                emit('finish');
+            }
+        },
+    );
 
     // Watch display ref and update page title accordingly
     watch(
@@ -50,20 +59,22 @@
             :style="{ width: props.timerRemaining + '%' }"
         ></div>
     </div>
-    <div class="buttons">
+    <div class="control-buttons">
         <template v-if="status !== 'finished'">
-            <button v-if="status === 'stopped'" @click="">Start</button>
-            <button v-if="status === 'running'" @click="() => null">
+            <button v-if="status === 'stopped'" @click="() => $emit('start')">
+                {{ currentTimer > 0 ? 'Start' : 'Restart' }}
+            </button>
+            <button v-if="status === 'running'" @click="() => $emit('pause')">
                 Pause
             </button>
-            <button v-if="status === 'paused'" @click="() => null">
-                Resume
-            </button>
+            <template v-if="status === 'paused'">
+                <button @click="() => $emit('start')">Resume</button>
+                <button @click="() => $emit('stop')">Stop</button>
+            </template>
         </template>
         <template v-else>
             <button @click="() => null">Restart</button>
         </template>
-        <button v-if="status !== 'stopped'" @click="() => null">Stop</button>
     </div>
 </template>
 
@@ -93,7 +104,7 @@
         animation: paused-animation 1000ms linear infinite alternate;
     }
 
-    .buttons > * {
+    .control-buttons > * {
         padding: 1rem;
         font-size: 2rem;
     }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { onMounted, ref, useTemplateRef } from 'vue';
+    import { onMounted, ref, useTemplateRef, watch } from 'vue';
     import MuteButton from '@/components/MuteButton.vue';
     import TimerDisplay from '@/components/TimerDisplay.vue';
     import PhaseButtons from '@/components/PhaseButtons.vue';
@@ -13,20 +13,66 @@
     const modal_open = ref(false);
     const muted = ref(false);
     const audio_element = useTemplateRef('audioElement');
+    const timer_id = ref<number | null>(null);
 
     let audioContext: AudioContext;
     let track: MediaElementAudioSourceNode;
 
-    function changePhase(newPhase?: Phase) {
-        if (!audio_element.value) return;
-        audio_element.value.pause();
+    function changePhase(new_phase?: Phase) {
+        if (new_phase) {
+            current_phase.value = new_phase;
+        } else {
+            let next_phase: Phase = 'focus';
+            if (audio_element.value) {
+                audio_element.value.pause();
+            }
 
-        let next_phase: Phase = 'focus';
+            if (current_phase.value === 'focus') next_phase = 'break';
+            if (current_phase.value === 'break') next_phase = 'focus';
+            current_phase.value = next_phase;
+            modal_open.value = false;
+        }
+    }
 
-        if (current_phase.value === 'focus') next_phase = 'break';
-        if (current_phase.value === 'break') next_phase = 'focus';
-        current_phase.value = next_phase;
-        modal_open.value = false;
+    watch(current_phase, () => {
+        current_timer.value = TIMERS[current_phase.value];
+    });
+
+    /** TODO: Add timer event handlers
+     *  [x] start
+     *  [x] pause
+     *  [x] finish
+     *  [x] stop
+     **/
+
+    function resetTimer() {
+        current_timer.value = TIMERS[current_phase.value];
+    }
+
+    function startTimer() {
+        // Restart a finished timer
+        if (current_timer.value < 1) resetTimer();
+
+        timer_status.value = 'running';
+        timer_id.value = setInterval(() => {
+            current_timer.value -= 1;
+        }, 1000);
+    }
+
+    function stopTimer() {
+        timer_status.value = 'stopped';
+        if (current_timer.value > 1) resetTimer();
+
+        if (!timer_id.value) return;
+        clearInterval(timer_id.value);
+        timer_id.value = null;
+    }
+
+    function pauseTimer() {
+        timer_status.value = 'paused';
+        if (!timer_id.value) return;
+        clearInterval(timer_id.value);
+        timer_id.value = null;
     }
 
     function endSession() {
@@ -79,7 +125,10 @@
                 :phase="current_phase"
                 :status="timer_status"
                 :timer-remaining="(current_timer / TIMERS[current_phase]) * 100"
-                @finished="playAlert"
+                @start="startTimer"
+                @stop="stopTimer"
+                @pause="pauseTimer"
+                @finish="playAlert"
             />
         </div>
         <MuteButton :muted="muted" @toggle-mute="toggleMute" />
