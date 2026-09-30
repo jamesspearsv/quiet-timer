@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import type { Phase, TimerStatus } from '@/lib/types';
-    import { ref, computed, watch } from 'vue';
+    import { computed, watch } from 'vue';
 
     const emit = defineEmits(['start', 'pause', 'finish', 'stop']);
     const props = defineProps<{
