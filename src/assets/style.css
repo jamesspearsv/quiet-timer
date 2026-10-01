@@ -7,6 +7,7 @@
     --clr-transparent: transparent;
     --border-radius: 8px;
     --gap-spacing: 10px;
+    --button-padding: 1rem 2rem;
 }
 
 #app {
@@ -27,4 +28,11 @@ button {
 button:hover {
     background-color: var(--clr-shaded);
     cursor: pointer;
+}
+
+button > i {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: inherit;
 }

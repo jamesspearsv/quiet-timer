@@ -52,7 +52,7 @@
     }
 
     .phase-selector > button {
-        padding: 1rem 2rem;
+        padding: var(--button-padding);
         font-weight: 4rem;
         transition: border 220ms ease-in-out;
         z-index: 100;

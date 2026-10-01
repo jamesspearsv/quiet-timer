@@ -6,6 +6,7 @@
     import SegmentDialog from '@/components/SegmentDialog.vue';
     import type { Phase, TimerStatus } from '@/lib/types.ts';
     import { TIMERS } from './lib/const';
+    import ContextTracker from '@/components/ContextTracker.vue';
 
     const current_phase = ref<Phase>('focus');
     const current_timer = ref(TIMERS.focus);
@@ -37,13 +38,6 @@
     watch(current_phase, () => {
         current_timer.value = TIMERS[current_phase.value];
     });
-
-    /** TODO: Add timer event handlers
-     *  [x] start
-     *  [x] pause
-     *  [x] finish
-     *  [x] stop
-     **/
 
     function resetTimer() {
         current_timer.value = TIMERS[current_phase.value];
@@ -115,24 +109,25 @@
 
 <template>
     <main>
-        <div>
-            <PhaseButtons
-                :phase="current_phase"
-                @change-phase="(m: Phase) => changePhase(m)"
-            />
-            <TimerDisplay
-                :current-timer="current_timer"
-                :phase="current_phase"
-                :status="timer_status"
-                :timer-remaining="(current_timer / TIMERS[current_phase]) * 100"
-                @start="startTimer"
-                @stop="stopTimer"
-                @pause="pauseTimer"
-                @finish="playAlert"
-            />
-        </div>
-        <MuteButton :muted="muted" @toggle-mute="toggleMute" />
+        <PhaseButtons
+            :phase="current_phase"
+            @change-phase="(m: Phase) => changePhase(m)"
+        />
+        <TimerDisplay
+            :current-timer="current_timer"
+            :phase="current_phase"
+            :status="timer_status"
+            :timer-remaining="(current_timer / TIMERS[current_phase]) * 100"
+            @start="startTimer"
+            @stop="stopTimer"
+            @pause="pauseTimer"
+            @finish="playAlert"
+        />
+        <ContextTracker />
     </main>
+
+    <!-- # Non-UI elements # -->
+    <MuteButton :muted="muted" @toggle-mute="toggleMute" />
     <audio ref="audioElement" src="/retro-alarm-clock.mp3"></audio>
     <SegmentDialog
         :open="modal_open"
@@ -151,13 +146,11 @@
         bottom: 0;
         left: 0;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-    }
+        gap: 1rem;
 
-    main > div {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding-inline: 35%;
     }
 </style>
