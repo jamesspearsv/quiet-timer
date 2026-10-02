@@ -7,7 +7,6 @@
     import { type Context, type Phase, type TimerStatus } from '@/lib/types.ts';
     import { TIMERS } from './lib/const';
     import ContextTracker from '@/components/ContextTracker.vue';
-
     const current_phase = ref<Phase>('focus');
     const current_timer = ref(TIMERS.focus);
     const timer_status = ref<TimerStatus>('stopped');
@@ -15,11 +14,7 @@
     const muted = ref(false);
     const audio_element = useTemplateRef('audioElement');
     const timer_id = ref<number | null>(null);
-    const contexts = ref<Context[]>([]);
-    const current_context = computed(() => {
-        const context = contexts.value.pop();
-        if (!context?.completed) return context;
-    });
+    const context = ref<Context | undefined>();
 
     let audioContext: AudioContext;
     let track: MediaElementAudioSourceNode;
@@ -116,7 +111,7 @@
     <main>
         <PhaseButtons
             :phase="current_phase"
-            @change-phase="(m: Phase) => changePhase(m)"
+            @change-phase="(p: Phase) => changePhase(p)"
         />
         <TimerDisplay
             :current-timer="current_timer"
@@ -128,7 +123,10 @@
             @pause="pauseTimer"
             @finish="playAlert"
         />
-        <ContextTracker :context="current_context" />
+        <ContextTracker
+            :context="context"
+            @add-context="(c: Context) => (context = c)"
+        />
     </main>
 
     <!-- # Non-UI elements # -->
