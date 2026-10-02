@@ -1,14 +1,48 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+    import type { Context } from '@/lib/types';
+
+    const { context } = defineProps<{
+        context: Context | undefined;
+    }>();
+
+    const emit = defineEmits<{
+        addContext: [c: Context];
+    }>();
+
+    const actionModel = defineModel();
+
+    function addAction() {
+        if (actionModel.value) {
+            alert(`Adding action: ${actionModel.value}`);
+            emit('addContext', {
+                action: actionModel.value, // todo: fix this error
+                completed: false,
+                duration_worked: 0,
+            });
+            actionModel.value = '';
+        }
+    }
+</script>
 <template>
-    <div class="context-container">
-        <input type="text" name="" id="" />
-        <button>
-            <i class="bi bi-plus-circle"></i>
-        </button>
-    </div>
+    <template v-if="context">
+        <p>{{ context.action }}</p>
+    </template>
+    <template v-else>
+        <form class="context-input" @submit.prevent="addAction">
+            <input
+                type="text"
+                v-model.trim="actionModel"
+                name="action"
+                id="action"
+            />
+            <button type="submit">
+                <i class="bi bi-plus-circle-fill"></i>
+            </button>
+        </form>
+    </template>
 </template>
 <style lang="css" scoped>
-    .context-container {
+    .context-input {
         width: 100%;
         display: flex;
         gap: 0;

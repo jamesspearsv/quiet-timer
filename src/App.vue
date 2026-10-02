@@ -1,10 +1,10 @@
 <script setup lang="ts">
-    import { onMounted, ref, useTemplateRef, watch } from 'vue';
+    import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
     import MuteButton from '@/components/MuteButton.vue';
     import TimerDisplay from '@/components/TimerDisplay.vue';
     import PhaseButtons from '@/components/PhaseButtons.vue';
     import SegmentDialog from '@/components/SegmentDialog.vue';
-    import type { Phase, TimerStatus } from '@/lib/types.ts';
+    import { type Context, type Phase, type TimerStatus } from '@/lib/types.ts';
     import { TIMERS } from './lib/const';
     import ContextTracker from '@/components/ContextTracker.vue';
 
@@ -15,6 +15,11 @@
     const muted = ref(false);
     const audio_element = useTemplateRef('audioElement');
     const timer_id = ref<number | null>(null);
+    const contexts = ref<Context[]>([]);
+    const current_context = computed(() => {
+        const context = contexts.value.pop();
+        if (!context?.completed) return context;
+    });
 
     let audioContext: AudioContext;
     let track: MediaElementAudioSourceNode;
@@ -123,7 +128,7 @@
             @pause="pauseTimer"
             @finish="playAlert"
         />
-        <ContextTracker />
+        <ContextTracker :context="current_context" />
     </main>
 
     <!-- # Non-UI elements # -->
